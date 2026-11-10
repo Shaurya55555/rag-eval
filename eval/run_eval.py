@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from ragkit import store  # noqa: E402
+from ragkit import config, store  # noqa: E402
 from ragkit.llm import LLM  # noqa: E402
 from ragkit.pipeline import answer, retrieve  # noqa: E402
 
@@ -56,7 +56,7 @@ def main():
     ap.add_argument("--k", type=int, default=5)
     a = ap.parse_args()
 
-    qc, llm = store.client(), LLM()
+    qc, llm, judge = store.client(), LLM(), LLM(model=config.JUDGE_MODEL)
     rows = [json.loads(line) for line in Path(a.data).read_text(encoding="utf-8").splitlines() if line.strip()]
     ranks, faith, out = [], [], []
     for r in rows:
@@ -65,7 +65,7 @@ def main():
             f = None
         else:
             res = answer(qc, llm, r["question"], k_final=a.k, use_rerank=not a.no_rerank)
-            ctx, f = res["contexts"], faithfulness(llm, res["answer"], res["contexts"])
+            ctx, f = res["contexts"], faithfulness(judge, res["answer"], res["contexts"])
             time.sleep(0.3)
         rank = first_hit_rank(ctx, r["gold_snippet"])
         ranks.append(rank)
