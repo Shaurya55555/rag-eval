@@ -1,0 +1,7 @@
+qdrant-client
+fastembed
+httpx
+pydantic
+fastapi
+uvicorn
+pytest
