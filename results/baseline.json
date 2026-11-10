@@ -1,0 +1,273 @@
+{
+  "summary": {
+    "n": 52,
+    "rerank": false,
+    "k": 5,
+    "hit@5": 0.923,
+    "hit@1": 0.673,
+    "mrr": 0.752,
+    "faithfulness": 0.966
+  },
+  "rows": [
+    {
+      "id": "q001",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q002",
+      "rank": 2,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q003",
+      "rank": 4,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q004",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q005",
+      "rank": 1,
+      "faithfulness": 0.75
+    },
+    {
+      "id": "q006",
+      "rank": 3,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q007",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q008",
+      "rank": 5,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q009",
+      "rank": 3,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q010",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q011",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q012",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q013",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q014",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q015",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q016",
+      "rank": null,
+      "faithfulness": 0.5
+    },
+    {
+      "id": "q017",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q018",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q019",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q020",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q021",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q022",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q023",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q024",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q025",
+      "rank": 5,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q026",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q027",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q028",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q029",
+      "rank": null,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q030",
+      "rank": 2,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q031",
+      "rank": null,
+      "faithfulness": 0.0
+    },
+    {
+      "id": "q032",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q033",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q034",
+      "rank": null,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q035",
+      "rank": 3,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q036",
+      "rank": 4,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q037",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q038",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q039",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q040",
+      "rank": 4,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q041",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q042",
+      "rank": 5,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q043",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q044",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q045",
+      "rank": 2,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q046",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q047",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q048",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q049",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q050",
+      "rank": 1,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q051",
+      "rank": 4,
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q052",
+      "rank": 1,
+      "faithfulness": 1.0
+    }
+  ]
+}

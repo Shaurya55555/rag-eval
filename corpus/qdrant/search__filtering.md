@@ -1,0 +1,573 @@
+---
+title: Filtering
+short_description: "Combine vector similarity with payload filters in Qdrant to enforce business rules and refine search results."
+description: "Filter Qdrant search results with payload conditions on metadata and IDs, combining database-style clauses with vector similarity for precise retrieval."
+weight: 10
+cta: "Try filtered vector search on a free Cloud cluster."
+aliases:
+  - ../filtering
+---
+
+# Filtering
+
+With Qdrant, you can set conditions when searching or retrieving points.
+For example, you can impose conditions on both the [payload](/documentation/manage-data/payload/) and the `id` of the point.
+
+Setting additional conditions is important when it is impossible to express all the features of the object in the embedding.
+Examples include a variety of business requirements: stock availability, user location, or desired price range.
+
+<aside role="status">
+For performant filtering, create <a href="/documentation/manage-data/indexing/#payload-index">payload indexes</a> for the fields you plan to filter on. For best results, create payload indexes before ingesting data. Refer to <a href="/documentation/manage-data/indexing/#create-a-payload-index">Create a Payload Index</a> for more information.
+</aside>
+
+## Filtering Clauses
+
+Qdrant allows you to combine conditions in clauses.
+Clauses are different logical operations, such as `OR`, `AND`, and `NOT`.
+Clauses can be recursively nested into each other so that you can reproduce an arbitrary boolean expression.
+
+Let's take a look at the clauses implemented in Qdrant.
+
+Suppose we have a set of points with the following payload:
+
+```json
+[
+  { "id": 1, "city": "London", "color": "green" },
+  { "id": 2, "city": "London", "color": "red" },
+  { "id": 3, "city": "London", "color": "blue" },
+  { "id": 4, "city": "Berlin", "color": "red" },
+  { "id": 5, "city": "Moscow", "color": "green" },
+  { "id": 6, "city": "Moscow", "color": "blue" }
+]
+```
+
+### Must
+
+When using `must`, the clause becomes `true` only if every condition listed inside `must` is satisfied.
+In this sense, `must` is equivalent to the operator `AND`.
+
+Example:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-must-filter/" >}}
+
+Filtered points would be:
+
+```json
+[{ "id": 2, "city": "London", "color": "red" }]
+```
+
+### Should
+
+When using `should`, the clause becomes `true` if at least one condition listed inside `should` is satisfied.
+In this sense, `should` is equivalent to the operator `OR`.
+
+Example:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-should-filter/" >}}
+
+Filtered points would be:
+
+```json
+[
+  { "id": 1, "city": "London", "color": "green" },
+  { "id": 2, "city": "London", "color": "red" },
+  { "id": 3, "city": "London", "color": "blue" },
+  { "id": 4, "city": "Berlin", "color": "red" }
+]
+```
+
+<aside role="status">If all conditions inside <code>should</code> target the same field, use <a href="#match-any"><code>match any</code></a> instead. It's faster, especially when filtering on a large number of values.</aside>
+
+### Must Not
+
+When using `must_not`, the clause becomes `true` if none of the conditions listed inside `must_not` is satisfied.
+In this sense, `must_not` is equivalent to the expression `(NOT A) AND (NOT B) AND (NOT C)`.
+
+Example:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-must-not-filter/" >}}
+
+Filtered points would be:
+
+```json
+[
+  { "id": 5, "city": "Moscow", "color": "green" },
+  { "id": 6, "city": "Moscow", "color": "blue" }
+]
+```
+
+### Clauses Combination
+
+It is also possible to use several clauses simultaneously:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-multiple-clauses-combination/" >}}
+
+Filtered points would be:
+
+```json
+[
+  { "id": 1, "city": "London", "color": "green" },
+  { "id": 3, "city": "London", "color": "blue" }
+]
+```
+
+In this case, the conditions are combined by `AND`.
+
+Also, the conditions could be recursively nested. Example:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-nested-clauses-filter/" >}}
+
+Filtered points would be:
+
+```json
+[
+  { "id": 1, "city": "London", "color": "green" },
+  { "id": 3, "city": "London", "color": "blue" },
+  { "id": 4, "city": "Berlin", "color": "red" },
+  { "id": 5, "city": "Moscow", "color": "green" },
+  { "id": 6, "city": "Moscow", "color": "blue" }
+]
+```
+
+## Filtering Conditions
+
+Different types of values in payload correspond to different kinds of queries that we can apply to them.
+Let's look at the existing condition variants and what types of data they apply to.
+
+### Exact `Match` Conditions
+
+#### Match
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-keyword/" >}}
+
+For the other types, the match condition will look exactly the same, except for the type used:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-integer/" >}}
+
+The simplest kind of condition is one that checks if the stored value equals the given one.
+If several values are stored, at least one of them should match the condition.
+You can apply it to [keyword](/documentation/manage-data/payload/#keyword), [integer](/documentation/manage-data/payload/#integer), [bool](/documentation/manage-data/payload/#bool) and [UUID](/documentation/manage-data/payload/#uuid) payloads.
+
+##### UUID Match
+
+_Available as of v1.11.0_
+
+Matching of UUID values works similarly to the regular `match` condition for strings.
+Functionally, it will work with `keyword` and `uuid` indexes exactly the same, but `uuid` index is more memory efficient.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-uuid/" >}}
+
+#### Match Any
+
+*Available as of v1.1.0*
+
+In case you want to check if the stored value is one of multiple values, you can use the Match Any condition.
+Match Any works as a logical OR for the given values. It can also be described as a `IN` operator.
+
+You can apply it to [keyword](/documentation/manage-data/payload/#keyword) and [integer](/documentation/manage-data/payload/#integer) payloads.
+
+Example:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-any/" >}}
+
+In this example, the condition will be satisfied if the stored value is either `black` or `yellow`.
+
+If the stored value is an array, it should have at least one value matching any of the given values. For example, if the stored value is `["black", "green"]`, the condition will be satisfied, because `"black"` is in `["black", "yellow"]`.
+
+#### Match Except
+
+*Available as of v1.2.0*
+
+In case you want to check if the stored value is not one of multiple values, you can use the Match Except condition.
+Match Except works as a logical NOR for the given values.
+It can also be described as a `NOT IN` operator.
+
+You can apply it to [keyword](/documentation/manage-data/payload/#keyword) and [integer](/documentation/manage-data/payload/#integer) payloads.
+
+Example:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-except/" >}}
+
+In this example, the condition will be satisfied if the stored value is neither `black` nor `yellow`.
+
+If the stored value is an array, it should have at least one value not matching any of the given values. E.g. if the stored value is `["black", "green"]`, the condition will be satisfied, because `"green"` does not match `"black"` nor `"yellow"`.
+
+#### Prefix Match
+
+*Available as of v1.19.0*
+
+A match `prefix` condition matches [keyword](/documentation/manage-data/payload/#keyword) values that start with the specified string.
+
+For example, the prefix `"https://qdrant."` matches the value `"https://qdrant.tech/documentation"`, but the prefix `"qdrant"` does not.
+
+Matching is byte-wise and, for valid UTF-8 strings, therefore character-wise. It is also case-sensitive, consistent with exact keyword matching. Unlike [Full Text Match](#full-text-match), prefix matching does not tokenize the value, so it is well suited to identifiers such as URLs, paths, or SKUs.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-prefix/" >}}
+
+<aside role="status">
+    For efficient prefix matching, create a <a href="/documentation/manage-data/indexing/#prefix-matching-in-keyword-indices">keyword index with the <code>prefix</code> option</a> on the field. Without it, the condition still returns correct results but is not accelerated (it is checked per point rather than served by the index). When <a href="/documentation/ops-configuration/administration/#strict-mode">strict mode</a> is enabled with <code>unindexed_filtering_retrieve</code> or <code>unindexed_filtering_update</code> set to <code>false</code>, a prefix condition is rejected unless the field has a prefix-enabled keyword index — a plain keyword index (<code>prefix: false</code>) does not qualify.
+</aside>
+
+#### Substring Match
+
+*Available as of v1.20.0*
+
+<aside role="status">
+    Substring matching is computationally expensive. Qdrant rejects substring match conditions on any field whenever <a href="/documentation/ops-configuration/administration/#strict-mode">strict mode</a> is enabled, which it is by default on Qdrant Cloud. Use a <a href="#prefix-match">prefix match</a> or a <a href="#full-text-match">full-text match</a> instead where possible.
+</aside>
+
+A match `substring` condition matches [keyword](/documentation/manage-data/payload/#keyword) values that contain the specified string anywhere in the value.
+
+For example, the substring `"qdrant.tech/"` matches the value `"https://qdrant.tech/documentation"`.
+
+Matching is byte-wise and, for valid UTF-8 strings, therefore character-wise. It is also case-sensitive, consistent with exact keyword and prefix matching. Values that aren't strings never match. Unlike [Full Text Match](#full-text-match) and [Full Text Any](#full-text-any), substring matching doesn't tokenize the value or the query, so the query can span word boundaries and punctuation. This makes it well suited to identifiers such as URLs, paths, or SKUs.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/match-substring/" >}}
+
+A [keyword index](/documentation/manage-data/indexing/#payload-index) on the field speeds up substring matching, especially with the [`prefix` option](/documentation/manage-data/indexing/#prefix-matching-in-keyword-indices) enabled. Either way, Qdrant checks every distinct value of the field, so the cost grows with the number of distinct values. Without a keyword index, the condition still works but reads the payload of each point. A full-text index can't serve the condition, because it stores tokens rather than whole values.
+
+### Text Match
+
+#### Full-Text Match
+
+*Available as of v0.10.0*
+
+The `text` match condition supports [full-text filtering](/documentation/search/text-search/text-filtering/#full-text-filtering).
+It matches text fields that contain *all* of the provided query terms.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/full-text-match/" >}}
+
+For efficient matching, create a [full-text index](/documentation/manage-data/indexing/#full-text-index) for the field. The index configuration determines how the text is [processed](/documentation/search/text-search/text-filtering/#text-processing) before matching. For example, a full-text index can be configured to support [case insensitive matching](/documentation/manage-data/indexing/#lowercasing), apply [stemming](/documentation/manage-data/indexing/#stemmer), or ignore [stop words](/documentation/manage-data/indexing/#stopwords).
+
+Without a full-text index, Qdrant applies the `word` tokenizer and lowercases the text for case-insensitive matching.
+
+#### Full-Text Any
+
+*Available as of v1.16.0*
+
+The `text_any` full-text match condition is similar to the `text` condition, but with a key difference: while `text` only matches text fields that contain *all* the query terms, `text_any` matches fields that contain *any* of the query terms. In other words, even if a text field contains just one of the query terms, it is considered a match.
+
+For example, a query for `good cheap` matches `cheap hardware` as well as `good performance`.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/full-text-match-any/" >}}
+
+For efficient matching, create a [full-text index](/documentation/manage-data/indexing/#full-text-index) for the field. The index configuration determines how the text is [processed](/documentation/search/text-search/text-filtering/#text-processing) before matching. For example, a full-text index can be configured to support [case insensitive matching](/documentation/manage-data/indexing/#lowercasing), apply [stemming](/documentation/manage-data/indexing/#stemmer), or ignore [stop words](/documentation/manage-data/indexing/#stopwords).
+
+Without a full-text index, Qdrant applies the `word` tokenizer and lowercases the text for case-insensitive matching.
+
+#### Phrase Match
+
+*Available as of v1.15.0*
+
+A match `phrase` condition matches phrases. For example, the text `"quick brown fox"` matches the query `"brown fox"`, but not `"fox brown"`.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/phrase-match/" >}}
+
+For efficient matching, create a [full-text index](/documentation/manage-data/indexing/#full-text-index) for the field with [`phrase_matching` enabled](/documentation/manage-data/indexing/#phrase-matching). The index configuration determines how the text is [processed](/documentation/search/text-search/text-filtering/#text-processing) before matching. For example, a full-text index can be configured to support [case insensitive matching](/documentation/manage-data/indexing/#lowercasing), apply [stemming](/documentation/manage-data/indexing/#stemmer), or ignore [stop words](/documentation/manage-data/indexing/#stopwords).
+
+Without a full-text index, Qdrant applies the `word` tokenizer and lowercases the text for case-insensitive matching. 
+
+<aside role="status">
+    The index must be configured with the <code>phrase_matching</code> parameter set to <code>true</code>. If the index has phrase matching disabled, phrase conditions won't match anything.
+</aside>
+
+### Range
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/range/" >}}
+
+The `range` condition sets the range of possible values for stored payload values.
+If several values are stored, at least one of them should match the condition.
+
+Comparisons that can be used:
+
+- `gt` - greater than
+- `gte` - greater than or equal
+- `lt` - less than
+- `lte` - less than or equal
+
+Can be applied to [float](/documentation/manage-data/payload/#float) and [integer](/documentation/manage-data/payload/#integer) payloads.
+
+#### Datetime Range
+
+The datetime range is a unique range condition, used for [datetime](/documentation/manage-data/payload/#datetime) payloads, which supports RFC 3339 formats.
+You do not need to convert dates to UNIX timestamps. During comparison, timestamps are parsed and converted to UTC.
+
+_Available as of v1.8.0_
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/datetime-range/" >}}
+
+### Geo
+
+#### Geo Bounding Box
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/geo-bounding-box/" >}}
+
+It matches with `location`s inside a rectangle with the coordinates of the upper left corner in `top_left` and the coordinates of the lower right corner in `bottom_right`.
+
+#### Geo Radius
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/geo-radius/" >}}
+
+It matches with `location`s inside a circle with the `center` at the center and a radius of `radius` meters.
+
+If several values are stored, at least one of them should match the condition.
+These conditions can only be applied to payloads that match the [geo-data format](/documentation/manage-data/payload/#geo).
+
+#### Geo Polygon
+Geo Polygons search is useful for when you want to find points inside an irregularly shaped area, for example a country boundary or a forest boundary. A polygon always has an exterior ring and may optionally include interior rings. A lake with an island would be an example of an interior ring. If you wanted to find points in the water but not on the island, you would make an interior ring for the island.
+
+When defining a ring, you must pick either a clockwise or counterclockwise ordering for your points.  The first and last point of the polygon must be the same.
+
+Currently, we only support unprojected global coordinates (decimal degrees longitude and latitude) and we are datum agnostic.
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/geo-poligon/" >}}
+
+A match is considered any point location inside or on the boundaries of the given polygon's exterior but not inside any interiors.
+
+If several location values are stored for a point, then any of them matching will include that point as a candidate in the resultset.
+These conditions can only be applied to payloads that match the [geo-data format](/documentation/manage-data/payload/#geo).
+
+### Nested Key
+
+*Available as of v1.1.0*
+
+Payloads are JSON objects. A field you want to filter on can be nested inside another object or an array. To filter on a nested field, set the condition's `key` to the path of the field. The path syntax is similar to [jq](https://jqlang.github.io/jq/manual/#basic-filters): use a dot (`.`) to step into an object, and `[]` to step into the elements of an array.
+
+For example, take a set of points with the following payload:
+
+```json
+[
+  {
+    "id": 1,
+    "country": {
+      "name": "Germany",
+      "cities": [
+        {
+          "name": "Berlin",
+          "population": 3.7,
+          "sightseeing": ["Brandenburg Gate", "Reichstag"]
+        },
+        {
+          "name": "Munich",
+          "population": 1.5,
+          "sightseeing": ["Marienplatz", "Olympiapark"]
+        }
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "country": {
+      "name": "Japan",
+      "cities": [
+        {
+          "name": "Tokyo",
+          "population": 9.3,
+          "sightseeing": ["Tokyo Tower", "Tokyo Skytree"]
+        },
+        {
+          "name": "Osaka",
+          "population": 2.7,
+          "sightseeing": ["Osaka Castle", "Universal Studios Japan"]
+        }
+      ]
+    }
+  }
+]
+```
+
+You can search on a nested field using a dot notation.
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-on-nested-fields/" >}}
+
+You can also search through arrays by projecting inner values using the `[]` syntax.
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-on-nested-array/" >}}
+
+This query would only output the point with id 2 as only Japan has a city with population greater than 9.0.
+
+And the leaf nested field can also be an array.
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-on-nested-array-match/" >}}
+
+This query would only output the point with id 2 as only Japan has a city with the "Osaka Castle" as part of the sightseeing.
+
+#### Nested Object Filter
+
+*Available as of v1.2.0*
+
+By default, each condition in a filter is checked against the whole payload of a point. If a filter has several conditions on fields inside the same array, each condition can match a different element of the array.
+
+For instance, given two points with the following payload:
+
+```json
+[
+  {
+    "id": 1,
+    "dinosaur": "t-rex",
+    "diet": [
+      { "food": "leaves", "likes": false},
+      { "food": "meat", "likes": true}
+    ]
+  },
+  {
+    "id": 2,
+    "dinosaur": "diplodocus",
+    "diet": [
+      { "food": "leaves", "likes": true},
+      { "food": "meat", "likes": false}
+    ]
+  }
+]
+```
+
+The following query would match both points:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-with-multiple-nested/" >}}
+
+This happens because both points are matching the two conditions:
+
+- the "t-rex" matches food=meat on `diet[1].food` and likes=true on `diet[1].likes`
+- the "diplodocus" matches food=meat on `diet[1].food` and likes=true on `diet[0].likes`
+
+To match only points where a single element of the array meets all conditions, use a nested object filter. In this example, that's the point with ID 1.
+
+A `nested` condition has two parts: a `key` that points to an array of objects, and a `filter` with the conditions that a single element must meet. You can write the key with or without brackets, for example `diet` or `diet[]`.
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-with-nested-clause/" >}}
+
+A nested filter is applied to each element of the array separately, as if each element were its own document. A point matches if at least one element matches the whole nested filter.
+
+**Performance**
+
+Because a nested filter checks each element separately, Qdrant needs to know which element a value belongs to. Regular payload indexes don't record that: an index on `diet[].food` maps each food to the points that have it in any element. So regular indexes can only narrow down the candidates, and Qdrant then reads the payload of each remaining candidate to check the nested filter. This is slow when many candidates remain.
+
+To speed up nested filters, create [per-element indexes](/documentation/manage-data/indexing/#per-element-index-for-arrays-of-objects) on the fields of the array. Qdrant then answers a nested filter from the indexes alone if every condition in it is a match, range, geo, full-text, `is_empty`, or `is_null` condition on a field with a per-element index of the same array. The filter can still combine these conditions with `must`, `should`, `min_should`, and `must_not` clauses. If any condition isn't covered, Qdrant reads payloads to check the whole nested filter, including the conditions that have per-element indexes.
+
+**Limitations**
+
+The `has_id` and `slice` conditions are not supported within the nested object filter. If you need them, place them in an adjacent `must` clause.
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-with-nested-clause-and-has-id/" >}}
+
+### Values Count
+
+In addition to the direct value comparison, it is also possible to filter by the amount of values.
+
+For example, given the data:
+
+```json
+[
+  { "id": 1, "name": "product A", "comments": ["Very good!", "Excellent"] },
+  { "id": 2, "name": "product B", "comments": ["meh", "expected more", "ok"] }
+]
+```
+
+We can perform the search only among the items with more than two comments:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/values-count/" >}}
+
+The result would be:
+
+```json
+[{ "id": 2, "name": "product B", "comments": ["meh", "expected more", "ok"] }]
+```
+
+If stored value is not an array - it is assumed that the amount of values is equals to 1.
+
+### Is Empty
+
+Sometimes it is also useful to filter out records that are missing some value.
+The `IsEmpty` condition may help you with that:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/is-empty/" >}}
+
+This condition will match all records where the field `reports` either does not exist, or has `null` or `[]` value.
+
+If the field is inside an array of objects, such as `offers[].price`, and has a [per-element index](/documentation/manage-data/indexing/#per-element-index-for-arrays-of-objects), the condition is checked for each element. It matches a point if any of its elements lacks the field, and never matches a point without elements.
+
+<aside role="status">The <b>IsEmpty</b> is often useful together with the logical negation <b>must_not</b>. In this case all non-empty values will be selected.</aside>
+
+### Is Null
+
+It is not possible to test for `NULL` values with the <b>match</b> condition.
+We have to use `IsNull` condition instead:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/is-null/" >}}
+
+This condition will match all records where the field `reports` exists and has `NULL` value.
+
+
+### Has ID
+
+This type of query is not related to payload, but can be very useful in some situations.
+For example, the user could mark some specific search results as irrelevant, or we want to search only among the specified points.
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-has-id-filter/" >}}
+
+Filtered points would be:
+
+```json
+[
+  { "id": 1, "city": "London", "color": "green" },
+  { "id": 3, "city": "London", "color": "blue" },
+  { "id": 5, "city": "Moscow", "color": "green" }
+]
+```
+
+
+### Has Vector
+
+*Available as of v1.13.0*
+
+This condition enables filtering by the presence of a given named vector on a point.
+
+For example, if we have two named vector in our collection.
+
+```http
+PUT /collections/{collection_name}
+{
+    "vectors": {
+        "image": {
+            "size": 4,
+            "distance": "Dot"
+        },
+        "text": {
+            "size": 8,
+            "distance": "Cosine"
+        }
+    },
+    "sparse_vectors": {
+        "sparse-image": {},
+        "sparse-text": {},
+    },
+}
+```
+
+Some points in the collection might have all vectors, some might have only a subset of them.
+
+<aside role="status">If your collection does not have named vectors, use an empty (<code>""</code>) name.</aside>
+
+This is how you can search for points which have the dense `image` vector defined:
+
+{{< code-snippet path="/documentation/headless/snippets/scroll-points/with-filter-has-vector/" >}}
+
+### Slice
+
+*Available as of v1.19.0*
+
+The `slice` condition divides a collection into a specific number of deterministic, disjoint subsets and matches all points in one of those subsets.
+
+Slicing is useful to [scroll](/documentation/manage-data/points/#scroll-points) through several subsets of a collection in parallel, for example to export, migrate, or re-embed points. Give each worker its own `index` to let every worker scan a separate subset of the collection.
+
+You can also use it to reproducibly sample a subset of the data for recall evaluation, train/test splits, or canary rollouts. Unlike [random sampling](/documentation/search/search/#random-sampling), a given slice always returns the same subset of points. It can be combined with any other filter condition for stratified sampling.
+
+For example, to scroll through slice 3 out of a total of 8 slices:
+
+{{< code-snippet path="/documentation/headless/snippets/filter-condition/slice/" >}}
+
+Slicing is based on a hash of the point IDs. A point matches slice `index` of `total` if `hash(id) % total == index`. For a fixed `total`, slices `0` through `total - 1` are disjoint and together cover every point in the collection. The hash is [SipHash-2-4](https://en.wikipedia.org/wiki/SipHash) with a zero key over the ID bytes, and it won't change across Qdrant versions. Slices with different `total` values are correlated, so slice `0` of `total: 4` is always a subset of slice `0` of `total: 2`.
+
+## Read More
+
+Refer to [A Complete Guide to Filtering in Vector Search](/documentation/search-design/vector-search-filtering/) for developer advice on proper usage and advanced practices.
