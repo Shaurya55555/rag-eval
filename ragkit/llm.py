@@ -27,13 +27,17 @@ class LLM:
             try:
                 r = httpx.post(f"{self.base_url}/chat/completions",
                                headers={"Authorization": f"Bearer {self.api_key}"}, json=payload, timeout=120)
-            except httpx.TransportError:
+            except httpx.TransportError as e:
                 if attempt == 5:
                     raise
+                print(f"  [llm] network error ({type(e).__name__}), retry in {2 ** attempt}s", flush=True)
                 time.sleep(2 ** attempt)
                 continue
             if r.status_code in (429, 500, 502, 503) and attempt < 5:
-                time.sleep(float(r.headers.get("retry-after", 2 ** attempt * 2)))
+                # cap the wait: a huge retry-after means a daily quota is exhausted, which is better surfaced than slept through
+                wait = min(float(r.headers.get("retry-after", 2 ** attempt * 2)), 90.0)
+                print(f"  [llm] HTTP {r.status_code}, waiting {wait:.0f}s (attempt {attempt + 1}/6)", flush=True)
+                time.sleep(wait)
                 continue
             r.raise_for_status()
             break

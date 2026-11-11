@@ -59,7 +59,8 @@ def main():
     qc, llm, judge = store.client(), LLM(), LLM(model=config.JUDGE_MODEL)
     rows = [json.loads(line) for line in Path(a.data).read_text(encoding="utf-8").splitlines() if line.strip()]
     ranks, faith, out = [], [], []
-    for r in rows:
+    t0 = time.time()
+    for i, r in enumerate(rows, 1):
         if a.retrieval_only:
             ctx = retrieve(qc, r["question"], k_final=a.k, use_rerank=not a.no_rerank)
             f = None
@@ -72,6 +73,10 @@ def main():
         if f is not None:
             faith.append(f)
         out.append({"id": r["id"], "rank": rank, "faithfulness": f})
+        done = time.time() - t0
+        eta = done / i * (len(rows) - i)
+        print(f"[{i}/{len(rows)}] {r['id']} rank={rank} faith={f if f is None else round(f, 2)} "
+              f"elapsed={done:.0f}s eta={eta:.0f}s", flush=True)
 
     n = len(rows)
     summary = {
