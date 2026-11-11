@@ -27,9 +27,12 @@ and answer faithfulness on 52 questions.
 | config | hit@5 | hit@1 | MRR | faithfulness |
 |---|---|---|---|---|
 | dense only (baseline) | 0.923 | 0.673 | 0.752 | 0.966 |
-| dense + reranker | TBD | TBD | TBD | TBD |
+| dense + reranker | 0.962 | 0.788 | 0.858 | not measured |
 
-The reranked run is pending. Only a reranker comparison that finishes will be reported here.
+The cross-encoder lifts hit@1 by 11.5 points (0.673 to 0.788) and MRR by 0.106 (0.752 to 0.858); hit@5 rises by 3.9
+points, which is 2 of 52 questions, so treat that part as small. The reranked run was retrieval-only
+(`--retrieval-only`), so faithfulness was not re-measured with the reranker; the 0.966 figure is for the baseline only.
+With 52 questions, one question is 1.9 points of hit@k.
 
 ## Run
     pip install -r requirements.txt

@@ -1,0 +1,273 @@
+{
+  "summary": {
+    "n": 52,
+    "rerank": true,
+    "k": 5,
+    "hit@5": 0.962,
+    "hit@1": 0.788,
+    "mrr": 0.858,
+    "faithfulness": null
+  },
+  "rows": [
+    {
+      "id": "q001",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q002",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q003",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q004",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q005",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q006",
+      "rank": 2,
+      "faithfulness": null
+    },
+    {
+      "id": "q007",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q008",
+      "rank": 3,
+      "faithfulness": null
+    },
+    {
+      "id": "q009",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q010",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q011",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q012",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q013",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q014",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q015",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q016",
+      "rank": null,
+      "faithfulness": null
+    },
+    {
+      "id": "q017",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q018",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q019",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q020",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q021",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q022",
+      "rank": 2,
+      "faithfulness": null
+    },
+    {
+      "id": "q023",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q024",
+      "rank": 2,
+      "faithfulness": null
+    },
+    {
+      "id": "q025",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q026",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q027",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q028",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q029",
+      "rank": 3,
+      "faithfulness": null
+    },
+    {
+      "id": "q030",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q031",
+      "rank": 4,
+      "faithfulness": null
+    },
+    {
+      "id": "q032",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q033",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q034",
+      "rank": null,
+      "faithfulness": null
+    },
+    {
+      "id": "q035",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q036",
+      "rank": 5,
+      "faithfulness": null
+    },
+    {
+      "id": "q037",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q038",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q039",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q040",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q041",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q042",
+      "rank": 2,
+      "faithfulness": null
+    },
+    {
+      "id": "q043",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q044",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q045",
+      "rank": 2,
+      "faithfulness": null
+    },
+    {
+      "id": "q046",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q047",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q048",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q049",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q050",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q051",
+      "rank": 1,
+      "faithfulness": null
+    },
+    {
+      "id": "q052",
+      "rank": 1,
+      "faithfulness": null
+    }
+  ]
+}
