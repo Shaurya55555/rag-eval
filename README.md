@@ -41,6 +41,23 @@ With 52 questions, one question is 1.9 points of hit@k.
     uvicorn api:app                # open http://127.0.0.1:8000 for the demo page, or POST /ask
     python eval/run_eval.py --no-rerank
     python eval/run_eval.py
+    pytest                          # 13 tests, offline (LLM calls are mocked)
+
+## Failure handling
+| situation | behavior |
+|---|---|
+| LLM returns 429, 500, 502 or 503 | up to 6 attempts; waits `retry-after`, capped at 90 s (a huge value means a daily quota is gone and is better surfaced than slept through), else exponential backoff |
+| network error or timeout (120 s per call) | exponential backoff, re-raised after the 6th attempt |
+| LLM returns 4xx other than 429 (bad key, bad request) | not retried, raised immediately |
+| `LLM_API_KEY` not set | `RuntimeError` before any request is made |
+| `POST /ask` and the LLM is still failing | HTTP 502 `the answer model is unavailable`; the error is logged, not leaked to the client |
+| `POST /ask` with an empty or blank question | HTTP 422 |
+| context lacks the answer | the model is told to reply `I don't know based on the provided documents.`; no citations are returned |
+| model cites `[n]` outside the retrieved range | those numbers are dropped from the citation list |
+| judge model returns non-JSON or no claims | faithfulness for that question is `None` and excluded from the mean, not counted as 0 |
+
+Not handled: the embedded Qdrant store is single-process (a second process on the same path fails to lock it), and
+there is no request-level timeout on retrieval or reranking.
 
 ## Limits
 - Questions are LLM-drafted, so they skew toward passages that are easy to phrase as questions; 52 is enough to
