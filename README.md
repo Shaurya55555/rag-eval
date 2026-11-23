@@ -65,3 +65,5 @@ there is no request-level timeout on retrieval or reranking.
 - Faithfulness is judged by an LLM and measures support by the retrieved context, not factual truth.
 - The judge model is not human-validated. Small differences (about 0.02) should be treated as noise.
 - Corpus: Qdrant and FastAPI docs as of the download date; no incremental re-indexing.
+
+Write-up: [What a cross-encoder reranker bought me](docs/reranker-gain.md)
